@@ -5,8 +5,10 @@ import scipy as sp
 class Distribution:
     pass
 
-
 class StudentT(Distribution):
+    """ Generalized Student t distribution 
+    https://en.wikipedia.org/wiki/Student%27s_t-distribution#Generalized_Student's_t-distribution
+    """
     def __init__(self, mu0=0, kappa0=1, alpha0=1, beta0=1):
         self.mu0    = np.array([mu0])
         self.kappa0 = np.array([kappa0])
@@ -15,8 +17,6 @@ class StudentT(Distribution):
         self.reset_params()
 
     def reset_params(self):
-        """パラメタを初期状態にリセット
-        """
         self.muT    = self.mu0.copy()
         self.kappaT = self.kappa0.copy()
         self.alphaT = self.alpha0.copy()

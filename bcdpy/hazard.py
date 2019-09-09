@@ -2,7 +2,7 @@ import numpy as np
 
 
 class Hazard:
-    def __call__(self, x):
+    def __call__(self, *args, **kwargs):
         raise NotImplementedError()
 
 
