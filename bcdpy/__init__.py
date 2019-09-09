@@ -1,4 +1,3 @@
-import numpy as np
-from bcdpy import BayesianOnlineChangePointDetection
-from distribution import Distribution, StudentT
-from hazard import Hazard, ConstantHazard
+from bcdpy.bcdpy import BayesianOnlineChangePointDetection
+from bcdpy.distribution import Distribution, StudentT
+from bcdpy.hazard import Hazard, ConstantHazard
