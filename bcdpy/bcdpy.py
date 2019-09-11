@@ -8,12 +8,12 @@ class BayesianOnlineChangePointDetection:
         self.hazard = hazard
         self.distribution = distribution
         self.beliefs = np.zeros((2, 2))
-        self.beliefs[0, 0] = 1.
+        self.beliefs[0, 0] = 1.0
 
     def reset_params(self):
         self.T = 0
-        self.beliefs = np.zeros((2,2))
-        self.beliefs[0, 0] = 1.
+        self.beliefs = np.zeros((2, 2))
+        self.beliefs[0, 0] = 1.0
 
     def _expand_belief_matrix(self):
         rows = np.zeros((1, 2))
@@ -25,23 +25,28 @@ class BayesianOnlineChangePointDetection:
         self.beliefs[:, 1] = 0
         return current_belief
 
-    def _update_beliefs(self, hazard, pred_probs):
+    def update(self, x):
         self._expand_belief_matrix()
 
-        # Evaluate r{t+1}
-        self.beliefs[1:self.T+2, 1] = self.beliefs[:self.T+1, 0] * pred_probs * (1 - hazard)
+        # Evaluate Predictive Probability (3 in Algortihm 1)
+        probs = self.distribution.pdf(x)
 
-        # Evaluate the probability of changepoint
-        self.beliefs[0, 1] = (self.beliefs[:self.T+1, 0] * pred_probs * hazard).sum()
+        hazard = self.hazard(np.arange(self.T + 1))
 
-        # Normalize
+        # Calculate Growth Probability (4 in Algorithm 1)
+        self.beliefs[1 : self.T + 2, 1] = (
+            self.beliefs[: self.T + 1, 0] * probs * (1 - hazard)
+        )
+
+        # Calculate Changepoint Probabilities (5 in Algorithm 1)
+        self.beliefs[0, 1] = (self.beliefs[: self.T + 1, 0] * probs * hazard).sum()
+
+        # Determine Run length Distribution (7 in Algorithm 1)
         self.beliefs[:, 1] = self.beliefs[:, 1] / self.beliefs[:, 1].sum()
 
-    def update(self, x):
-        probs = self.distribution.pdf(x)
-        hazard = self.hazard(np.arange(self.T+1))
-        self._update_beliefs(hazard, probs)
+        # Update sufficient statistics (8 in Algorithm 8)
         self.distribution.update_params(x)
+
         max_belief_idx = np.where(self.beliefs[:, 0] == self.beliefs[:, 0].max())[0]
         current_belief = self._shift_belief_matrix()
         self.T += 1
