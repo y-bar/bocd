@@ -6,3 +6,4 @@ install:
   - pip install .
 script:
   - pipenv run pytest tests
+  - pipenv run black . --check
