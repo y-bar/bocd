@@ -21,6 +21,6 @@ class ConstantHazard(Hazard):
         if isinstance(r, np.ndarray):
             shape = r.shape
         else:
-            shape = 1.0
+            shape = 1
 
         return np.ones(shape) / self._lambda
