@@ -1,5 +1,5 @@
 import numpy as np
-import scipy as sp
+from scipy import stats
 
 
 class Distribution:
@@ -22,11 +22,11 @@ class StudentT(Distribution):
       2: normal-Gamma distribution as a prior for Gaussian
     """
 
-    def __init__(self, mu0=0, kappa0=1, alpha0=1, beta0=1):
-        self.mu0 = np.array([mu0])
-        self.kappa0 = np.array([kappa0])
-        self.alpha0 = np.array([alpha0])
-        self.beta0 = np.array([beta0])
+    def __init__(self, mu=0, kappa=1, alpha=1, beta=1):
+        self.mu0 = np.array([mu])
+        self.kappa0 = np.array([kappa])
+        self.alpha0 = np.array([alpha])
+        self.beta0 = np.array([beta])
         # We need the following lines to prevent "outside defined warning"
         self.muT = self.mu0.copy()
         self.kappaT = self.kappa0.copy()
@@ -42,7 +42,12 @@ class StudentT(Distribution):
     def pdf(self, x):
         """ Probability Density Function
         """
-        return sp.stats.t.pdf(x, loc=self.muT, df = 2*self.alpha, scale = np.sqrt(self.beta * (self.kappa+1) / (self.alpha * self.kappa))()
+        return stats.t.pdf(
+            x,
+            loc=self.muT,
+            df=2 * self.alphaT,
+            scale=np.sqrt(self.betaT * (self.kappaT + 1) / (self.alphaT * self.kappaT)),
+        )
 
     def update_params(self, x):
         """Update Sufficient Statistcs (Parameters)
@@ -52,11 +57,6 @@ class StudentT(Distribution):
         https://www.cs.ubc.ca/~murphyk/Papers/bayesGauss.pdf
         3.5 Posterior predictive
         """
-        self.muT = np.concatenate(
-            [self.mu0, (self.kappaT * self.muT + x) / (self.kappaT + 1)]
-        )
-        self.kappaT = np.concatenate([self.kappa0, self.kappaT + 1])
-        self.alphaT = np.concatenate([self.alpha0, self.alphaT + 0.5])
         self.betaT = np.concatenate(
             [
                 self.beta0,
@@ -66,3 +66,8 @@ class StudentT(Distribution):
                 ),
             ]
         )
+        self.muT = np.concatenate(
+            [self.mu0, (self.kappaT * self.muT + x) / (self.kappaT + 1)]
+        )
+        self.kappaT = np.concatenate([self.kappa0, self.kappaT + 1])
+        self.alphaT = np.concatenate([self.alpha0, self.alphaT + 0.5])

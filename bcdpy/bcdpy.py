@@ -2,17 +2,16 @@ import numpy as np
 
 
 class BayesianOnlineChangePointDetection:
-    T = 0
-
     def __init__(self, hazard, distribution):
         self.hazard = hazard
         self.distribution = distribution
-        self.beliefs = np.zeros((2, 2))
+        self.T = 0
+        self.beliefs = np.zeros((1, 2))
         self.beliefs[0, 0] = 1.0
 
     def reset_params(self):
         self.T = 0
-        self.beliefs = np.zeros((2, 2))
+        self.beliefs = np.zeros((1, 2))
         self.beliefs[0, 0] = 1.0
 
     def _expand_belief_matrix(self):
@@ -20,26 +19,23 @@ class BayesianOnlineChangePointDetection:
         self.beliefs = np.concatenate((self.beliefs, rows), axis=0)
 
     def _shift_belief_matrix(self):
-        current_belief = self.beliefs[:, 0]
         self.beliefs[:, 0] = self.beliefs[:, 1]
-        self.beliefs[:, 1] = 0
-        return current_belief
+        self.beliefs[:, 1] = 0.0
 
     def update(self, x):
         self._expand_belief_matrix()
 
         # Evaluate Predictive Probability (3 in Algortihm 1)
-        probs = self.distribution.pdf(x)
+        pi_t = self.distribution.pdf(x)
 
-        hazard = self.hazard(np.arange(self.T + 1))
+        # Calculate H(r_{t-1})
+        h = self.hazard(self.rt)
 
         # Calculate Growth Probability (4 in Algorithm 1)
-        self.beliefs[1 : self.T + 2, 1] = (
-            self.beliefs[: self.T + 1, 0] * probs * (1 - hazard)
-        )
+        self.beliefs[1 : self.T + 2, 1] = self.beliefs[: self.T + 1, 0] * pi_t * (1 - h)
 
         # Calculate Changepoint Probabilities (5 in Algorithm 1)
-        self.beliefs[0, 1] = (self.beliefs[: self.T + 1, 0] * probs * hazard).sum()
+        self.beliefs[0, 1] = (self.beliefs[: self.T + 1, 0] * pi_t * h).sum()
 
         # Determine Run length Distribution (7 in Algorithm 1)
         self.beliefs[:, 1] = self.beliefs[:, 1] / self.beliefs[:, 1].sum()
@@ -47,7 +43,14 @@ class BayesianOnlineChangePointDetection:
         # Update sufficient statistics (8 in Algorithm 8)
         self.distribution.update_params(x)
 
-        max_belief_idx = np.where(self.beliefs[:, 0] == self.beliefs[:, 0].max())[0]
-        current_belief = self._shift_belief_matrix()
+        # Update internal state
+        self._shift_belief_matrix()
         self.T += 1
-        return max_belief_idx, current_belief
+
+    @property
+    def rt(self):
+        return np.where(self.beliefs[:, 0] == self.beliefs[:, 0].max())[0]
+
+    @property
+    def belief(self):
+        return self.beliefs[:, 0]

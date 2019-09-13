@@ -21,7 +21,6 @@ class ConstantHazard(Hazard):
         if isinstance(r, np.ndarray):
             shape = r.shape
         else:
-            shape = 1
+            shape = 1.0
 
-        probability = np.ones(shape) / self._lambda
-        return probability
+        return np.ones(shape) / self._lambda
