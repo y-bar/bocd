@@ -17,5 +17,5 @@ Example jupyter notebooks are located [here](https://github.com/y-bar/bocd/tree/
 
 ## Installation
 ```bash
-$  
+$ pip install bocd
 ```
