@@ -1,5 +1,5 @@
 import pytest
-from bcdpy.distribution import Distribution
+from bocd.distribution import Distribution
 
 
 class TestDistribution:
