@@ -1,5 +1,5 @@
 # bocd
-[![Build Status](https://travis-ci.com/y-bar/bcdpy.svg?branch=master)](https://travis-ci.com/y-bar/bocd)
+[![Build Status](https://travis-ci.com/y-bar/bocd.svg?branch=master)](https://travis-ci.com/y-bar/bocd)
 
 Bayesian Online Changepoint Detection in Python.
 
