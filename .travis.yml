@@ -7,4 +7,6 @@ install:
   - pipenv install --dev
 script:
   - pytest tests
-  - black . --check
+  - black --check bocd/ tests/
+  - isort -rc --check-only -vb bocd/*.py tests/*.py
+  
