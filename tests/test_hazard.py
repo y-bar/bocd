@@ -1,5 +1,6 @@
 import pytest
-from bocd.hazard import Hazard, ConstantHazard
+
+from bocd.hazard import ConstantHazard, Hazard
 
 
 class TestHazard:
