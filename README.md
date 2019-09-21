@@ -21,4 +21,5 @@ $ pip install bocd
 ```
 
 ## Notes
-- 
+- This implementation is based on [this book written in Japanese](https://www.kyoritsu-pub.co.jp/bookdetail/9784320125018)
+    - You can get the original code [here](https://www.kyoritsu-pub.co.jp/app/file/goods_contents/3310.zip)
